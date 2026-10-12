@@ -1,21 +1,39 @@
 services:
-  mongo:
+  news-db:
     image: mongo:8.3
-    container_name: nuntius-new-service
+    container_name: nuntius-news-service
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
-      MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/db_password
+      MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/news_db_password
       MONGO_INITDB_DATABASE: ${MONGO_DB}
     ports:
-      - '27017:27017'
+      - "27017:27017"
     volumes:
       - mongo_data:/data/db
     secrets:
-      - db_password
+      - news_db_password
+
+  event-db:
+    image: postgres:18
+    container_name: nuntius-event-service
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD_FILE: /run/secrets/event_db_password
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "45674:5432"
+    volumes:
+      - pg_event_data:/var/lib/postgresql
+    secrets:
+      - event_db_password
 
 volumes:
   mongo_data:
+  pg_event_data:
 
 secrets:
-  db_password:
-    file: ./secrets/db_password.txt
+  news_db_password:
+    file: ../news-service/secrets/db_password.txt
+
+  event_db_password:
+    file: ../event-service/secrets/db_password.txt
